@@ -2,21 +2,21 @@
   <table class="table table-bordered table-sm table-dark table-hover">
     <thead>
       <tr>
-        <th colspan="2">Base</th>
-        <th colspan="2">Target</th>
+        <th colspan="2">Countries</th>
+        <th colspan="2">Currency</th>
         <th>Exchange Rate</th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="(datum, index) in data" :key="index">
-        <td>{{ datum.base }}</td>
         <td>
           <img :src="`${datum.baseFlag}`" />
         </td>
-        <td>{{ datum.target }}</td>
         <td>
           <img :src="`${datum.targetFlag}`" />
         </td>
+        <td>{{ datum.base }}</td>
+        <td>{{ datum.target }}</td>
         <td>{{datum.rate}}</td>
       </tr>
     </tbody>
@@ -41,10 +41,10 @@ export default {
       obj.baseFlag = this.getCountryFlag(datum[0].substr(0, 2));
       obj.target = datum[0].substr(3, 3);
       obj.targetFlag = this.getCountryFlag(datum[0].substr(3, 2));
-      obj.rate = datum[1].rate;
+      obj.rate = datum[1].rate.toFixed(2);
 
       this.data.push(obj);
-    });        
+    });
   },
   methods: {
     getCountryFlag(code) {
