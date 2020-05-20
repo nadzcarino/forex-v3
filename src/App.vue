@@ -1,13 +1,15 @@
 <template>
   <div id="app">
     <Navigation />
-    <ForexTable v-if="loaded" :forexData="data" />
+    <CurrencyTable />
+    <!-- <ForexTable v-if="loaded" :forexData="data" /> -->
   </div>
 </template>
 
 <script>
 import Navigation from "./components/Navigation";
-import ForexTable from "./components/ForexTable";
+//import ForexTable from "./components/ForexTable";
+import CurrencyTable from "./components/CurrencyTable";
 import SupportedPairs from "./assets/supported_pairs";
 import axios from "axios";
 
@@ -17,7 +19,9 @@ export default {
   name: "App",
   components: {
     Navigation,
-    ForexTable
+    CurrencyTable
+    //ForexTable,
+
   },
   data() {
     return {
