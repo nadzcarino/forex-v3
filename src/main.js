@@ -12,6 +12,7 @@ import InputNumber from "primevue/inputnumber";
 import Button from "primevue/button";
 import Dropdown from "primevue/dropdown";
 import AutoComplete from "primevue/autocomplete";
+import ProgressSpinner from 'primevue/progressspinner';
 
 Vue.config.productionTip = false;
 
@@ -21,6 +22,7 @@ Vue.component("Button", Button);
 Vue.component("DataTable", DataTable);
 Vue.component("Column", Column);
 Vue.component("AutoComplete", AutoComplete);
+Vue.component('ProgressSpinner', ProgressSpinner);
 
 new Vue({
   render: (h) => h(App),

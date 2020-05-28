@@ -1,52 +1,60 @@
 <template>
-  <DataTable :value="filteredData" :paginator="filteredData" :rows="5" selectionMode="single">
-    <template #header>
-      <div class="header">
-        <div>
-          <label for>BASE</label>
-          <Dropdown
-            v-model="baseCode"
-            :options="baseCurrency"
-            optionLabel="name"
-            :filter="true"
-            style="width:200px"
-            :disabled="offline"
-          ></Dropdown>
-        </div>
-        <div>
-          <label for>Target</label>
-          <Dropdown
-            v-model="targetCode"
-            :options="forexData"
-            optionLabel="currency"
-            :filter="true"
-            :showClear="true"
-            placeholder="Select Target Currency"
-            style="width:200px"
-            @change="test"
-          ></Dropdown>
-        </div>
-        <div>
-          <label for>Amount</label>
-          <InputNumber v-model="amount" :value="amount"/>
-        </div>
-      </div>
-      <p v-if="offline">No internet connection</p>
-    </template>
-    <Column field="country" header="Country" :sortable="true">
-      <template #body="slotProps">
-        <img :src="slotProps.data.country" :alt="slotProps.data.country" width="48px" />
-      </template>
-    </Column>
-    <Column field="code" header="Code" :sortable="true"></Column>
-    <Column field="currency" header="Currency" :sortable="true"></Column>
-    <Column field="rate" header="Base Exchange Rate" :sortable="true"></Column>
-    <Column header="Exchange" :sortable="true">
-      <template #body="slotProps">
-        <p>{{ slotProps | exchangeRate(amount) }}</p>
-      </template>
-    </Column>
-  </DataTable>
+  <div>
+    <div class="p-field p-col-12 p-md-12" v-if="!loaded">
+      <p>Please wait while fetching data ......</p>
+      <ProgressSpinner />
+    </div>
+    <div class="p-fluid p-grid" v-if="loaded">
+      <DataTable :value="filteredData" :paginator="true" :rows="5" selectionMode="single">
+        <template #header>
+          <div class="header">
+            <div>
+              <label for>BASE</label>
+              <Dropdown
+                v-model="baseCode"
+                :options="baseCurrency"
+                optionLabel="name"
+                :filter="true"
+                style="width:200px"
+                :disable="offline"
+              ></Dropdown>
+            </div>
+            <div>
+              <label for>Target</label>
+              <Dropdown
+                v-model="targetCode"
+                :options="forexData"
+                optionLabel="currency"
+                :filter="true"
+                :showClear="true"
+                placeholder="Select Target Currency"
+                style="width:200px"
+                @change="filterData"
+              ></Dropdown>
+            </div>
+            <div>
+              <label for>Amount</label>
+              <InputNumber v-model="amount" :value="amount" showButtons />
+            </div>
+          </div>
+          <p v-if="offline">No internet connection</p>
+        </template>
+        <Column field="country" header="Country" :sortable="true">
+          <template #body="slotProps">
+            <img :src="slotProps.data.country" :alt="slotProps.data.country" width="48px" />
+          </template>
+        </Column>
+        <Column field="code" header="Code" :sortable="true"></Column>
+        <Column field="currency" header="Currency" :sortable="true"></Column>
+        <Column field="rate" header="Base Exchange Rate" :sortable="true"></Column>
+        <Column header="Exchange" :sortable="true">
+          <template #body="slotProps">
+            <p>{{ slotProps | exchangeRate(amount) }}</p>
+          </template>
+        </Column>
+      </DataTable>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -62,7 +70,8 @@ export default {
       forexData: null,
       filteredData: null,
       baseCurrency: null,
-      offline: Boolean
+      offline: Boolean,
+      loaded: false
     };
   },
   forexService: null,
@@ -84,12 +93,17 @@ export default {
           .then(response => {
             this.forexData = this.filteredData = this.createObject(response);
             localStorage.setItem("forexData", JSON.stringify(this.forexData));
+            this.loaded = true;
           })
           .catch(error => console.log(error));
       } else {
+        alert(
+          "You are either offline or connection to API is limited. We will display the offline data instead."
+        );
         this.forexData = this.filteredData = JSON.parse(
           localStorage.getItem("forexData")
         );
+        this.loaded = true;
       }
     },
     createObject(response) {
@@ -105,12 +119,12 @@ export default {
         obj.currency = this.baseCurrency.filter(
           base => base.code === arr[0]
         )[0].name;
-        obj.rate = arr[1] === 1 ? arr[1] : arr[1].toFixed(3);
+        obj.rate = arr[1];
         data.push(obj);
       });
       return data;
     },
-    test() {
+    filterData() {
       if (this.targetCode) {
         this.filteredData = this.forexData.filter(
           base => base.code === this.targetCode.code
